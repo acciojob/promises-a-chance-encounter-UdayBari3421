@@ -1,34 +1,31 @@
-//your JS code here. If required.
-function getRandomNumber() {
-  return Math.floor(Math.random() * 10) + 1;
-}
+const output = document.getElementById("output");
 
-function createRandomPromise() {
-  return new Promise((resolve, reject) => {
-    const randomNumber = getRandomNumber();
-    const shouldReject = Math.random() < 0.5;
+      // Create an array of five promises
+      const promises = Array.from({ length: 5 }, (_, i) => {
+        return new Promise((resolve, reject) => {
+          // Randomly decide whether to resolve or reject the promise
+          const shouldResolve = Math.random() < 0.5;
+          if (shouldResolve) {
+            // Resolve the promise with a random number between 1 and 10
+            const randomNumber = Math.floor(Math.random() * 10) + 1;
+            resolve(randomNumber);
+          } else {
+            // Reject the promise with an error message
+            reject(`Promise ${i + 1} rejected with error`);
+          }
+        });
+      });
 
-    if (shouldReject) {
-      reject(`Promise ${randomNumber} rejected with an error`);
-    } else {
-      resolve(`Promise ${randomNumber} resolved with ${randomNumber}`);
-    }
-  });
-}
-
-async function runPromises() {
-  const promises = Array.from({ length: 5 }, createRandomPromise);
-
-  try {
-    const results = await Promise.all(promises);
-    results.forEach(result => {
-      const pTag = document.createElement("p");
-      pTag.textContent = result;
-      document.getElementById("output").appendChild(pTag);
-    });
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-runPromises();
+      // Use Promise.all to wait for all promises to settle, and then log the array of results or errors
+      Promise.allSettled(promises).then((results) => {
+        results.forEach((result) => {
+          // Check whether the promise resolved or rejected, and log the appropriate message
+          if (result.status === "fulfilled") {
+            const value = result.value;
+            output.innerHTML += `<p>${value}</p>`;
+          } else {
+            const reason = result.reason;
+            output.innerHTML += `<p>${reason}</p>`;
+          }
+        });
+      });
